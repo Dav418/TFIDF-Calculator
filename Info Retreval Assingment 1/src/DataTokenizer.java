@@ -20,7 +20,7 @@ public class DataTokenizer {
             "out","on","off","over","under","again","further","then","once","here","there","when","where","why",
             "how","all","any","both","each","few","more","most","other","some","such","no","nor","not","only","own"
             ,"same","so","than","too","very","s","t","can","will","just","don","should","now","_","-","","-rrb-",
-            "-lrb-","-lsb-","-rsb-","''","``"};
+            "-lrb-","-lsb-","-rsb-","''","``"};// words not relevent to a search
 
 
     DataTokenizer(){
@@ -30,15 +30,16 @@ public class DataTokenizer {
         List<String> returnList = new ArrayList<>();
         for(String str:list){ //for each sentence
             Reader reader = new StringReader(str);
-            DocumentPreprocessor dp = new DocumentPreprocessor(reader);
+            DocumentPreprocessor dp = new DocumentPreprocessor(reader); //seperates each sentance into a list of words
             for (List<HasWord> str2 : dp) {
                 String sentenceString = SentenceUtils.listToString(str2);
-                sentenceString = normalise(sentenceString);
+                sentenceString = normalise(sentenceString); //get rid of accepts
                 returnList.add(sentenceString);
             }
         }
         return returnList;
     }
+    
     public List<List<Word>> splitIntoWords(URLparser.Values val, List<String> list){ // tag each word in the sentence
         List<List<Word>> returnList = new ArrayList<>();
         MaxentTagger tagger = new MaxentTagger("taggers/english-left3words-distsim.tagger");
@@ -51,9 +52,9 @@ public class DataTokenizer {
     private List<Word> splitSentenceIntoWords(URLparser.Values val, String sentence){
         List<Word> returnList = new ArrayList<>();
         sentence=sentence.toLowerCase();
-        sentence=sentence.replaceAll("[.,?!:]","");
+        sentence=sentence.replaceAll("[.,?!:]",""); //get rid of punctuation and make words lowercase for later comparison
+        
         String[] words = sentence.split("\\s+");
-
         for (String word:words) {
             if(!checkIfWordIsStopWord(word)){
                 Word w = new Word(word,val); //store tagged String and what element it came from
@@ -66,11 +67,11 @@ public class DataTokenizer {
     }
 
     private boolean checkIfWordIsStopWord(String wordToCheck){
-        int i = wordToCheck.indexOf("_");
+        int i = wordToCheck.indexOf("_"); //check if its tagged, since each word will look like 'example_ee'
         if(i==-1){
             return true;
         }else{
-            String wordNoTag = wordToCheck.substring(0,i);
+            String wordNoTag = wordToCheck.substring(0,i); // get rid of tag to compare with stopwords array
             return Arrays.asList(stopwords).contains(wordNoTag);
         }
 
